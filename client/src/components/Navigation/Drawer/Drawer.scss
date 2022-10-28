@@ -1,0 +1,54 @@
+.Drawer {
+  position: fixed;
+  left: 0;
+  top: 60px;
+  bottom: 0;
+  width: 80%;
+  max-width: 300px;
+  padding: 0px 10px;
+  box-sizing: border-box;
+  background: #FFF;
+  transform: translateX(0px);
+  transition: transform .22s ease-in;
+  z-index: 90;
+  h3 {
+    margin-top: 0;
+  }
+  &.close {
+    transform: translateX(-300px);
+  }
+  ul {    
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    li {
+      margin-bottom: 15px;
+      a {
+        color: #363F54;
+        font-size: 20px;
+        text-decoration: none;
+        background-color: #FFF;
+        position: relative;
+        padding: 0 20px 10px 20px;
+        transition: opacity .3s;
+        &:hover, &.active {
+          opacity: .7;
+        }
+      }
+    }
+  }  
+  .createListBlock {
+    position: absolute;
+    bottom: 0;
+    transition: all ease .5s;
+    &.close {
+      bottom: -10rem;
+    }
+    .formBlock {
+      padding: 0;
+    }
+  }
+  @media only screen and (max-width: 600px) {
+    top: 90px;
+  }
+}

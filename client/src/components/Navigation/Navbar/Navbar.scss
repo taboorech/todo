@@ -1,0 +1,49 @@
+$maxWidth: 990px;
+
+nav {
+  div {    
+    .brand-logo {
+      margin-left: 4rem;
+      @media only screen and (max-width: $maxWidth) {
+       margin-left: 0; 
+      }
+    }
+    &.nav-content {
+      display: none;
+      height: 3rem;
+      div {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        a{
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-direction: column;
+          height: 100%;
+          &.active {
+            .activeViewer {
+              height: 2px;
+            }
+          }
+          .activeViewer {
+            position: relative;
+            bottom: 0;
+            height: 0;
+            width: 100%;
+            background: #FFF;
+          }
+        }
+      }
+      @media only screen and (max-width: $maxWidth) {
+        display: flex;
+      }
+    }
+    ul {
+      margin-right: 4rem;  
+      @media only screen and (max-width: $maxWidth) {
+        display: none;
+      }    
+    }
+  }
+}

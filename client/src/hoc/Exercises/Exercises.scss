@@ -1,0 +1,13 @@
+.Exercises {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid #b8b8b8;
+  padding: 1.5rem 3rem;
+  border-radius: 10px;
+  h3 {
+    display: flex;
+    align-self: center;
+    margin-top: 0;
+  }
+}

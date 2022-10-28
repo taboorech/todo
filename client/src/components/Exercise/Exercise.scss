@@ -1,0 +1,75 @@
+$maxWidth: 750px;
+
+.Exercise {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid #b8b8b8;
+  padding: 0.5rem;  
+  overflow: hidden;
+  &:last-child {
+    border: none;
+  }
+  div {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    cursor: pointer;
+    .title {
+      h4 {
+        &.complete {
+          text-decoration: line-through;
+        }
+      }
+    }
+    .date {
+      display: flex;
+      justify-content: flex-end;
+      height: 100%;
+      width: 30%;
+      align-items: center;
+      @media only screen and (max-width: $maxWidth) {
+        width: auto;
+      }
+    }
+  }
+  div {
+    overflow: hidden;
+    height: auto;
+    .additionalInfo {
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      width: 100%;
+      margin-bottom: -50rem;
+      transition: all .7s;
+      height: auto;
+      .description {
+        text-align: justify;
+      }
+      &.enter-active {
+        opacity: 1;
+        margin-bottom: 1rem;
+        transition: all .3s;      
+      }
+      &.enter-done {
+        opacity: 1;
+        margin-bottom: 1rem;
+      }
+      &.exit-active {
+        opacity: 0;
+        margin-bottom: -50rem;
+        transition: all .7s;
+      }
+      &.exit-done {
+        margin-bottom: -50rem;
+        opacity: 0;  
+      }
+    }
+  }
+}
