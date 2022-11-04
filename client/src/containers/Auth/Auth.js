@@ -3,12 +3,16 @@ import './Auth.scss';
 import M from 'materialize-css';
 import Form from "../../components/Form/Form";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 export default function Auth() {
 
+  // console.log(Cookies.get('user').login);
   const baseURL = 'http://localhost:3001/';
+  const navigate = useNavigate();
   // const [registration, setRegistration] = useState(false);
-  const [error, setError] = useState(null);
+  // const [error, setError] = useState(null);
   const [login, setLogin] = useState("");
   const [registerLogin, setRegisterLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +23,7 @@ export default function Auth() {
   useEffect(() => {
     M.AutoInit();    
     document.title = "Auth";
+    if(Cookies.get('sid') !== undefined) navigate('/');
   })
 
   const confirmPasswordInputChangeHandler = (event) => {
@@ -30,8 +35,23 @@ export default function Auth() {
     }
   }
 
-  const btnSubmitHandler = () => {
-    // axios post request
+  const btnLoginClickHandler = async () => {
+    if(login && password) {
+      await axios.post(baseURL + 'auth/login', {
+        login,
+        password
+      }, {
+        withCredentials: true
+      })
+      .then((response) => {
+        if(response.status === 200) {
+          navigate('/');
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+    }
   }
 
   const btnRegisterClickHandler = async () => {
@@ -69,7 +89,7 @@ export default function Auth() {
             loginValue = {login}
             passwordInputChange = {(event) => setPassword(event.target.value)}
             passwordValue = {password}
-            btnClick = {btnSubmitHandler}
+            btnClick = {btnLoginClickHandler}
           />
         </div>
         <div id="registration" className="col m8 s12 offset-m2">

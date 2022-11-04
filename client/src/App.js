@@ -1,38 +1,18 @@
-import React, {Component} from 'react'
+import React from 'react'
 import { Route, Routes } from 'react-router-dom';
 import './App.scss';
-// import axios from "axios"
 import Layout from './hoc/Layout/Layout';
 import ToDo from './containers/ToDo/ToDo';
-import {useParams} from 'react-router-dom'
 import Auth from "./containers/Auth/Auth";
 
-const ToDoWithParamsId = () => {
-  const {id} = useParams();  
+export default function App() {
   return (
-    <ToDo paramsId={id} />
+    <Layout>
+      <Routes>
+        <Route path="/" element={<ToDo />}/>
+        <Route path="/:id" element={<ToDo />}/>        
+        <Route path="/auth" element={<Auth/>} end/>
+      </Routes>
+    </Layout>
   );
 }
-
-class App extends Component {
-  constructor(props) {    
-    super(props);
-    this.state = {
-      isLoaded: false,
-      error: null
-    }
-  }  
-  
-  render() {
-    return (
-      <Layout>
-        <Routes>
-          <Route path="/:id" element={<ToDoWithParamsId />}/>
-          <Route path="/auth" element={<Auth/>} end/>
-        </Routes>
-      </Layout>
-    );
-  }
-}
-
-export default App;

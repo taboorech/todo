@@ -6,7 +6,6 @@ import MenuToggle from "../../components/Navigation/MenuToggle/MenuToggle";
 import Drawer from "../../components/Navigation/Drawer/Drawer";
 import { NavLink, useParams } from "react-router-dom";
 import { ListTitle } from "../../components/ListTitle/ListTitle";
-import { v4 as uuid } from 'uuid';
 import axios from 'axios';
 
 export default function ToDo() {
@@ -22,7 +21,7 @@ export default function ToDo() {
   const [updateValues, setUpdateValues] = useState(null);
   const [lists, setLists] = useState([
     {
-      id: 0,
+      id: "6365a1886e86c30a314e57e4",
       listName: "General list"  
     },
     {
@@ -50,7 +49,10 @@ export default function ToDo() {
         await axios.post(baseURL + 'api/create-exercise', {
           title: createNewExerciseInputValue,
           date: createNewExerciseDateValue,
-          description: createNewExerciseDescription
+          description: createNewExerciseDescription,
+          listId: selectListId
+        }, {
+          withCredentials: true
         })
         .then((response) => {
           exercise = {
@@ -61,14 +63,13 @@ export default function ToDo() {
             complete: false,
             isOpen: false
           }
-          console.log(response);
         })
         .catch((error) => {
           console.log(error);
         })
         exercisesArr.push(exercise);
       } else {
-        exercisesArr[this.state.updateValues] = {
+        exercisesArr[updateValues] = {
           title: createNewExerciseInputValue,
           date: createNewExerciseDateValue,
           description: createNewExerciseDescription,
@@ -115,8 +116,8 @@ export default function ToDo() {
   }
 
   const deleteButtonClickHandler = (event) => {
-    const listnumber = +event.target.getAttribute("listnumber");    
-    const exercisesArr = [exercises];
+    const listnumber = +event.target.getAttribute("listnumber");
+    const exercisesArr = [...exercises];
     exercisesArr.splice(listnumber, 1);
     setExercises(exercisesArr);
     // axios post request
@@ -127,13 +128,21 @@ export default function ToDo() {
   }
 
   const createListButtonClickHandler = () => {
-    lists.push({
-      id: uuid(),
-      listName: createListInputValue
+    axios.post(baseURL + 'api/create-list', {
+      title: createListInputValue
+    }, {
+      withCredentials: true
     })
-    setCreateListInputValue("");
-    console.log("lists: ", lists);
-    // axios post request
+    .then((response) => {
+      lists.push({
+        id: response.data._id,
+        listName: createListInputValue
+      });
+      setCreateListInputValue("");
+    })
+    .catch((error) => {
+      console.log(error);
+    })
   }
 
   const createListInputChangeHandler = (event) => {

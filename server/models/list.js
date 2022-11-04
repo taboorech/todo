@@ -15,6 +15,13 @@ const listSchema = new Schema({
       }
     }
   ]
-})
+});
+
+listSchema.methods.addExercise = function (exercise) {
+  const exercises = [...this.exercises];
+  exercises.push({exerciseId: exercise.id});
+  this.exercises = exercises;
+  return this.save();
+}
 
 module.exports = model('List', listSchema);

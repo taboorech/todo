@@ -22,4 +22,11 @@ const userSchema = new Schema({
   }]
 })
 
+userSchema.methods.addList = function (list) {
+  const lists = [...this.lists];
+  lists.push({listId: list.id});
+  this.lists = lists;
+  return this.save();
+}
+
 module.exports = model('User', userSchema);

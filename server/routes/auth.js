@@ -3,25 +3,34 @@ const router = Router();
 const User = require('../models/user');
 const List = require('../models/list');
 const bcrypt = require("bcrypt");
+const auth = require('../middleware/auth');
 const {validationResult} = require('express-validator')
-const {registerValidators} = require('../utils/validators')
+const {loginValidators, registerValidators} = require('../utils/validators')
 
-router.post('/login', async (req, res) => {
-  const {login, password} = req.body;
-  if(login && password) {
-    const candidate = User.findOne({email: login || login});
-    if(!candidate) {
-      return res.status(422).json({"error": "User is not found"});
-    }
-    // req.session.user = candidate
-    // req.session.isAuthenticated = true
-    // req.session.save((err) => {
-    //   if(err) { 
-    //       throw err
-    //   }
-    // })
+router.post('/login', loginValidators, async (req, res) => {
+  const errors = validationResult(req);  
+  if(!errors.isEmpty()) {
+    return res.status(422).json({"error": errors.array()[0].msg});
   }
+  res.cookie("sid", req.session.id, {
+    maxAge: 31 * 24 * 60 * 60 * 1000,
+  });
+  //res.locals.isAuth = req.session.isAuthenticated; // ?
+  return res.status(200).send(JSON.stringify(req.session.id));
 });
+
+router.post('/logout', async (req, res) => {
+  console.log(req.session);
+  try {
+    // Destroy session cookies
+    req.session.destroy((err) => {
+      res.clearCookie("sid");
+      res.clearCookie("connect.sid").status(204).send();
+    });
+  } catch (e) {
+    console.log(e);
+  }
+})
 
 router.post('/register', registerValidators, async (req, res) => {
   const errors = validationResult(req);
