@@ -4,11 +4,14 @@ import Exercises from "../../hoc/Exercises/Exercises";
 import Exercise from "../../components/Exercise/Exercise";
 import MenuToggle from "../../components/Navigation/MenuToggle/MenuToggle";
 import Drawer from "../../components/Navigation/Drawer/Drawer";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
 import { ListTitle } from "../../components/ListTitle/ListTitle";
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
 export default function ToDo() {
+
+  const navigate = useNavigate();
   const baseURL = 'http://localhost:3001/';
   const {id} = useParams();
   const [createNewExerciseInputValue, setCreateNewExerciseInputValue] = useState("");
@@ -19,17 +22,8 @@ export default function ToDo() {
   const [listTitle, setListTitle] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [updateValues, setUpdateValues] = useState(null);
-  const [lists, setLists] = useState([
-    {
-      id: "6365a1886e86c30a314e57e4",
-      listName: "General list"  
-    },
-    {
-      id: 1,
-      listName: "FFF list"  
-    },
-  ]);
-  const [selectListId, setSelectListId] = useState(id || lists[0].id);
+  const [lists, setLists] = useState([]);
+  const [selectListId, setSelectListId] = useState(id || "");
   const [exercises, setExercises] = useState([
     {id: "0", title: "123", date: Date.now(), description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", complete: false, isOpen: false},
     {id: "1", title: "123", date: Date.now(), description: "", complete: true, isOpen: false},
@@ -91,10 +85,9 @@ export default function ToDo() {
 
   const clickOnLinkHandler = (event) => {
     const linkHref = event.target.href.split('/');
-    console.log(lists);
     setSelectListId(linkHref[linkHref.length - 1]);
     setMenuOpen(false);
-    document.title = this.state.lists.find(({id}) => id.toString() === linkHref[linkHref.length - 1].toString()).listName;
+    document.title = lists.find(({id}) => id.toString() === linkHref[linkHref.length - 1].toString()).listName;
   }
 
   const onChangeDateInputHandler = (value) => {
@@ -134,10 +127,11 @@ export default function ToDo() {
       withCredentials: true
     })
     .then((response) => {
-      lists.push({
-        id: response.data._id,
+      console.log(response);
+      setLists(oldArray => [...oldArray, {
+        id: response.data.list._id,
         listName: createListInputValue
-      });
+      }]);
       setCreateListInputValue("");
     })
     .catch((error) => {
@@ -192,11 +186,32 @@ export default function ToDo() {
         setLists(listsArr);
       }
     }
+  } 
+
+  const getListsRequest = async () => {
+    await axios.get(baseURL + 'api/lists', {
+      withCredentials: true
+    })
+    .then((response) => {
+      setLists([...response.data.lists]);
+      if(id) {
+        const selectList = response.data.lists.find((list) => list.id === id);
+        setSelectListId(selectList.id);
+        document.title = selectList.listName;
+      } else {
+        const selectList = response.data.lists[0];
+        setSelectListId(selectList.id);
+        document.title = selectList.listName;
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+    })
   }
 
   useEffect(() => {
-    document.title = lists.find(({id}) => id.toString() === selectListId.toString()).listName;
-  })
+    getListsRequest();
+  }, [])
 
   return (
     <>
@@ -212,8 +227,8 @@ export default function ToDo() {
           <li key={`links-${index}`}>
             <NavLink
               to={'/' + list.id}                
-              className={({isActive}) => isActive ? "active" : null} 
-              onClick={(event) => clickOnLinkHandler(event)}
+              className={({isActive}) => isActive || list.id === selectListId ? "active" : null} 
+              onClick={event => clickOnLinkHandler(event)}
             >
               {list.listName}
             </NavLink>
@@ -237,16 +252,18 @@ export default function ToDo() {
           onDescriptionInputChange = {(event) => descriptionInputChangeHandler(event)}
           descriptionValue = {createNewExerciseDescription}
         />
-        <ListTitle 
-          value={listTitle !== "" ? listTitle : lists.find(({id}) => (id.toString() === selectListId.toString())).listName}
+        {lists.length > 0 ?
+        <ListTitle
+          value={listTitle !== "" ? listTitle : lists.find(({id}) => (id === selectListId)).listName}
           onDblClick = {listTitleDoubleClickHandler}
           onApplyButtonClick = {listTitleApplyButtonClick}
           onDeleteButtonClick = {listTitleDeleteButtonClick}
           canDelete = {lists.length > 1}
           inputChange = {(event) => listTitleInputChangeHandler(event)}
           editListTitle = {editListTitle}
-          anotherList = {selectListId.toString() !== lists[0].id.toString() ? lists[0].id.toString() : (lists.length > 1 ? lists[1].id.toString() : null)}
-        />
+          anotherList = {lists.length > 0 && selectListId.toString() !== lists[0].id.toString() ? lists[0].id.toString() : (lists.length > 1 ? lists[1].id.toString() : null)}
+        /> : null}
+        {lists.length > 0 ?
         <Exercises>          
           {exercises.map((exercise, index) => (
             <Exercise 
@@ -263,7 +280,7 @@ export default function ToDo() {
               complete={exercise.complete}
             />
           ))}
-        </Exercises>
+        </Exercises> : null}
       </main>
     </>
   )

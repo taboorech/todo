@@ -17,7 +17,7 @@ const userSchema = new Schema({
     listId: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: 'Lists'
+      ref: 'List'
     }
   }]
 })
