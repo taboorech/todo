@@ -7,6 +7,17 @@ const auth = require('../middleware/auth');
 const {validationResult} = require('express-validator')
 const {loginValidators, registerValidators} = require('../utils/validators')
 
+router.get('/', async (req, res) => {
+  try {
+    if(!req.user) {
+      return res.status(401).json({});
+    }
+    return res.status(204).json({});
+  } catch(error) {
+    console.log(error);
+  }
+})
+
 router.post('/login', loginValidators, async (req, res) => {
   const errors = validationResult(req);  
   if(!errors.isEmpty()) {
@@ -15,12 +26,10 @@ router.post('/login', loginValidators, async (req, res) => {
   res.cookie("sid", req.session.id, {
     maxAge: 31 * 24 * 60 * 60 * 1000,
   });
-  //res.locals.isAuth = req.session.isAuthenticated; // ?
   return res.status(200).send(JSON.stringify(req.session.id));
 });
 
 router.post('/logout', async (req, res) => {
-  console.log(req.session);
   try {
     // Destroy session cookies
     req.session.destroy((err) => {

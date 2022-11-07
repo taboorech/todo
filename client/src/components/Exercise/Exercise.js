@@ -27,7 +27,7 @@ export default function Exercise(props) {
         </p>
         <div>
           <div className="title" listnumber={props.listNumber}>
-            <h4 className={titleStyles.join(' ')}>{props.title}</h4>
+            <h4 className={titleStyles.join(' ')} listnumber={props.listNumber}>{props.title}</h4>
           </div>
           {props.date ?
           <div className="date" listnumber={props.listNumber}>Must to do at: {props.date}</div> : null}

@@ -29,4 +29,12 @@ userSchema.methods.addList = function (list) {
   return this.save();
 }
 
+userSchema.methods.removeList = function (list) {
+  //console.log(list);
+  let lists = [...this.lists];
+  lists = lists.filter(({listId}) => listId.toString() !== list._id.toString());
+  this.lists = lists;
+  return this.save();
+}
+
 module.exports = model('User', userSchema);

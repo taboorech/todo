@@ -24,4 +24,11 @@ listSchema.methods.addExercise = function (exercise) {
   return this.save();
 }
 
+listSchema.methods.removeExercise = function (exercise) {
+  let exercises = [...this.exercises];
+  exercises = exercises.filter((element) => element.exerciseId.toString() !== exercise._id.toString());
+  this.exercises = exercises;
+  return this.save();
+}
+
 module.exports = model('List', listSchema);

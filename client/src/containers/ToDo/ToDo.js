@@ -4,14 +4,14 @@ import Exercises from "../../hoc/Exercises/Exercises";
 import Exercise from "../../components/Exercise/Exercise";
 import MenuToggle from "../../components/Navigation/MenuToggle/MenuToggle";
 import Drawer from "../../components/Navigation/Drawer/Drawer";
-import { NavLink, useParams, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { ListTitle } from "../../components/ListTitle/ListTitle";
 import axios from 'axios';
-import Cookies from 'js-cookie';
 
 export default function ToDo() {
 
   const navigate = useNavigate();
+
   const baseURL = 'http://localhost:3001/';
   const {id} = useParams();
   const [createNewExerciseInputValue, setCreateNewExerciseInputValue] = useState("");
@@ -24,11 +24,7 @@ export default function ToDo() {
   const [updateValues, setUpdateValues] = useState(null);
   const [lists, setLists] = useState([]);
   const [selectListId, setSelectListId] = useState(id || "");
-  const [exercises, setExercises] = useState([
-    {id: "0", title: "123", date: Date.now(), description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", complete: false, isOpen: false},
-    {id: "1", title: "123", date: Date.now(), description: "", complete: true, isOpen: false},
-    {id: "2", title: "123", date: Date.now(), description: "", complete: false, isOpen: false}
-  ]);
+  const [exercises, setExercises] = useState([]);
 
   const changeInputHandler = (event) => {
     setCreateNewExerciseInputValue(event.target.value);
@@ -38,7 +34,6 @@ export default function ToDo() {
     if(createNewExerciseInputValue.trim() !== "") {
       const exercisesArr = [...exercises];
       if(updateValues === null) {
-        // axios
         let exercise;
         await axios.post(baseURL + 'api/create-exercise', {
           title: createNewExerciseInputValue,
@@ -63,12 +58,33 @@ export default function ToDo() {
         })
         exercisesArr.push(exercise);
       } else {
-        exercisesArr[updateValues] = {
-          title: createNewExerciseInputValue,
-          date: createNewExerciseDateValue,
-          description: createNewExerciseDescription,
-          complete: exercises[updateValues].complete,
-          isOpen: false
+        if(exercises[updateValues].title.trim() !== createNewExerciseInputValue || 
+          exercises[updateValues].date !== createNewExerciseDateValue || 
+          exercises[updateValues].description.trim() !== createNewExerciseDescription
+        ) {
+          await axios.put(baseURL + 'api/exercise-update', {
+            id: exercises[updateValues].id,
+            title: createNewExerciseInputValue,
+            date: createNewExerciseDateValue,
+            description: createNewExerciseDescription,
+            complete: exercises[updateValues].complete
+          }, {
+            withCredentials: true
+          })
+          .then((response) => {
+            if(response.status === 204) {
+              exercisesArr[updateValues] = {
+                title: createNewExerciseInputValue,
+                date: createNewExerciseDateValue,
+                description: createNewExerciseDescription,
+                complete: exercises[updateValues].complete,
+                isOpen: false
+              }
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          })
         }
       }
       setCreateNewExerciseInputValue("");
@@ -87,6 +103,7 @@ export default function ToDo() {
     const linkHref = event.target.href.split('/');
     setSelectListId(linkHref[linkHref.length - 1]);
     setMenuOpen(false);
+    getExercisesRequest(linkHref[linkHref.length - 1]);
     document.title = lists.find(({id}) => id.toString() === linkHref[linkHref.length - 1].toString()).listName;
   }
 
@@ -94,11 +111,19 @@ export default function ToDo() {
     setCreateNewExerciseDateValue(value);
   }
 
-  const onCheckboxesChecked = (event) => {
+  const onCheckboxesChecked = async (event) => {
     const exercisesArr = [...exercises];
     exercisesArr[event.target.value].complete = !exercisesArr[event.target.value].complete;
+    await axios.put(baseURL + 'api/exercise-complete', {
+      id: exercisesArr[event.target.value].id,
+      complete: exercisesArr[event.target.value].complete
+    }, {
+      withCredentials: true
+    })
+    .catch((error) => {
+      console.log(error);
+    })
     setExercises(exercisesArr);
-    // axios post request
   }
 
   const onExerciseClickHandler = (event) => {
@@ -108,26 +133,36 @@ export default function ToDo() {
     setExercises(exercisesArr);
   }
 
-  const deleteButtonClickHandler = (event) => {
+  const deleteButtonClickHandler = async (event) => {
     const listnumber = +event.target.getAttribute("listnumber");
     const exercisesArr = [...exercises];
+    await axios.delete(baseURL + 'api/exercise-delete', {
+      data: {
+        id: exercisesArr[listnumber].id,
+        listId: selectListId
+      }
+    })
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
     exercisesArr.splice(listnumber, 1);
     setExercises(exercisesArr);
-    // axios post request
   }
 
   const descriptionInputChangeHandler = (event) => {
     setCreateNewExerciseDescription(event.target.value);
   }
 
-  const createListButtonClickHandler = () => {
-    axios.post(baseURL + 'api/create-list', {
+  const createListButtonClickHandler = async () => {
+    await axios.post(baseURL + 'api/create-list', {
       title: createListInputValue
     }, {
       withCredentials: true
     })
     .then((response) => {
-      console.log(response);
       setLists(oldArray => [...oldArray, {
         id: response.data.list._id,
         listName: createListInputValue
@@ -160,49 +195,86 @@ export default function ToDo() {
     setListTitle(event.target.value);
   }
 
-  const listTitleApplyButtonClick = () => {
+  const listTitleApplyButtonClick = async () => {
     let listsArr = [...lists];
     for(let i = 0; i < listsArr.length; i++) {
-      if(selectListId.toString() === listsArr[i].id.toString() && listTitle.trim() !== listsArr[i].listName.trim()) {
+      if(selectListId === listsArr[i].id && listTitle.trim() !== listsArr[i].listName.trim()) {
+        await axios.put(baseURL + 'api/list-update', {
+          id: selectListId,
+          title: listTitle
+        }, {
+          withCredentials: true
+        })
+        .catch((error) => {
+          console.log(error);
+        })
         listsArr[i].listName = listTitle;
         setListTitle("")
         setEditListTitle(false);
         setLists(listsArr);
-        console.log(lists);
       } else {
         setEditListTitle(false);
       }
     }
   }
 
-  const listTitleDeleteButtonClick = () => {
+  const listTitleDeleteButtonClick = async () => {
     let listsArr = [...lists];
     for(let i = 0; i < listsArr.length; i++) {
       if(selectListId.toString() === listsArr[i].id.toString()) {
-        listsArr.splice(i, 1);
-        setListTitle("");
-        setSelectListId(selectListId.toString() !== lists[0].id.toString() ? lists[0].id : lists[1].id);
-        setEditListTitle(false);
-        setLists(listsArr);
+        await axios.delete(baseURL + 'api/list-delete', {
+          data: {
+            listId: selectListId
+          },
+          withCredentials: true
+        })
+        .then((response) => {
+          if(response.status === 200) {
+            listsArr.splice(i, 1);
+            setListTitle("");
+            setSelectListId(selectListId.toString() !== lists[0].id.toString() ? lists[0].id : lists[1].id);
+            setEditListTitle(false);
+            setLists(listsArr);
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        })
       }
     }
-  } 
+  }
 
-  const getListsRequest = async () => {
+  const fetchData = async () => {
     await axios.get(baseURL + 'api/lists', {
       withCredentials: true
     })
     .then((response) => {
       setLists([...response.data.lists]);
+      let selectList = '';
       if(id) {
-        const selectList = response.data.lists.find((list) => list.id === id);
+        selectList = response.data.lists.find((list) => list.id === id);
         setSelectListId(selectList.id);
         document.title = selectList.listName;
       } else {
-        const selectList = response.data.lists[0];
+        selectList = response.data.lists[0];
         setSelectListId(selectList.id);
         document.title = selectList.listName;
       }
+      getExercisesRequest(selectList.id);
+    })
+    .catch((error) => {
+      console.log(error);
+    })
+  }
+
+  const getExercisesRequest = async (selectListId) => {
+    await axios.post(baseURL + 'api/exercises', {
+      listId: selectListId
+    }, {
+      withCredentials: true
+    })
+    .then((response) => {
+      setExercises([...response.data.exercises])
     })
     .catch((error) => {
       console.log(error);
@@ -210,7 +282,7 @@ export default function ToDo() {
   }
 
   useEffect(() => {
-    getListsRequest();
+    fetchData();
   }, [])
 
   return (

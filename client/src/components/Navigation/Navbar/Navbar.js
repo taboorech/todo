@@ -1,27 +1,44 @@
 import React, {useEffect, useState} from "react";
 import './Navbar.scss';
-import {NavLink, useLocation} from 'react-router-dom';
+import {NavLink, useLocation, useNavigate} from 'react-router-dom';
 import M from 'materialize-css';
 import axios from "axios";
-import Cookies from 'js-cookie';
 
 export default function Navbar() {
 
+  const navigate = useNavigate();
+
   const baseURL = 'http://localhost:3001/';
-  const [isAuth, setAuth] = useState(null);
+  const [isAuth, setAuth] = useState(false);
   const {pathname} = useLocation();
   useEffect(() => {
     M.AutoInit();
-    setAuth(Cookies.get("sid") ? true : false);
   }, []);
 
+  useEffect(() => {
+    fetchData();
+  }, [pathname])
+
+  const fetchData = async () => {
+    await axios.get(baseURL + 'auth', { withCredentials: true })
+    .then((response) => {
+      if(response.status === 204) {
+        setAuth(true);
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      setAuth(false);
+    })
+  }
+
   const logoutClickHandler = async () => {
-    axios.post(baseURL + 'auth/logout', {}, {
+    await axios.post(baseURL + 'auth/logout', {}, {
       withCredentials: true
     })
-    .then((response) => {
+    .then(() => {
       setAuth(false);
-      console.log(response);
+      navigate('/auth');
     })
     .catch((error) => {
       console.log(error);
@@ -44,7 +61,7 @@ export default function Navbar() {
           <div className="row">
             <NavLink 
               className={"col s6"}
-              to="/0"
+              to="/"
             >
               <div className="linkTitle">Home</div>
               <div className="activeViewer"></div>
