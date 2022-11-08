@@ -91,12 +91,15 @@ router.delete('/exercise-delete', async (req, res) => {
 })
 
 router.delete('/list-delete', async (req, res) => {
+  if(req.user.lists.length <= 1) {
+    return res.status(403).json({}); 
+  }  
   const list = await List.findByIdAndDelete(req.body.listId);
   list.exercises.map(async ({exerciseId}) => {
     await Exercise.findByIdAndDelete(exerciseId);
   });
   await req.user.removeList(list);
-  res.status(204).json({});
+  return res.status(204).json({});
 })
 
 module.exports = router;

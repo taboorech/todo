@@ -4,7 +4,6 @@ import './Form.scss';
 export default function Form(props) {
   return (
     <>
-    {/* // <form className="Form"> action="/auth/login" method="POST"> */}
       {props.registration ?
         <div className="input-field col s12">
           <input 
@@ -30,7 +29,7 @@ export default function Form(props) {
           className="validate"
           required 
         />
-        <label htmlFor={props.registration ? "registration-login" : "login"}>{props.registration ? "Login: " : "Login or email:"}</label>
+        <label htmlFor={props.registration ? "registration-login" : "login"}>{props.registration ? "Login: " : "Email:"}</label>
         <span className="helper-text" data-error="The field must be filled and contain more than 2 symbols"></span>
       </div>
       <div className="input-field col s12">
@@ -60,14 +59,10 @@ export default function Form(props) {
           <span className="helper-text" data-error="Passwords do not match"></span>
         </div>
       : null}
-      {/* <input type="hidden" name="_csrf" value="{{csrf}}" /> */}
       <button 
-        className="btn btn-pimary col s5 m4 offset-m8 offset-s7"
-        // type="submit"
+        className="btn col s5 m4 offset-m8 offset-s7"
         onClick={props.btnClick}
-        // onСlick={props.btnClick}
       >{props.btnName}</button>
-    {/* </form> */}
     </>
   )
 }

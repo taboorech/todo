@@ -35,7 +35,7 @@ export function ListTitle(props) {
           <Button 
             node="button" 
             waves="light"
-            className="red col m3 s6 offset-s6 offset-m1"
+            className="remove col m3 s6 offset-s6 offset-m1"
             onClick={() => { 
               if(props.canDelete) {
                 props.onDeleteButtonClick(); 

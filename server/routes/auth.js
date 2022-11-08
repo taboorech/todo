@@ -7,17 +7,6 @@ const auth = require('../middleware/auth');
 const {validationResult} = require('express-validator')
 const {loginValidators, registerValidators} = require('../utils/validators')
 
-router.get('/', async (req, res) => {
-  try {
-    if(!req.user) {
-      return res.status(401).json({});
-    }
-    return res.status(204).json({});
-  } catch(error) {
-    console.log(error);
-  }
-})
-
 router.post('/login', loginValidators, async (req, res) => {
   const errors = validationResult(req);  
   if(!errors.isEmpty()) {

@@ -1,3 +1,9 @@
+$yellowColor: #E9C46A;
+$blackColor: #264653;
+$redColor: #E76F51;
+$greenColor: #2A9D8F;
+$whiteColor: #EBB9B3;
+
 .ListTitle {
   width: 100%;
   margin-bottom: 0;
@@ -13,5 +19,20 @@
         margin-top: -50rem;
       }
     }    
+  }
+  button {
+    background: $yellowColor;
+    color: $blackColor;
+    &.remove {
+      background: $redColor;
+      color: $whiteColor;
+      &:hover {
+        color: $redColor;
+      }
+    }
+    &:hover {
+      background: $blackColor;
+      color: $yellowColor;
+    }
   }
 }

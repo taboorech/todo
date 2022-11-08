@@ -4,11 +4,12 @@ const cors = require('cors');
 const keys = require('./keys/index');
 const mongoose = require("mongoose");
 const session = require('express-session')
-const MongoStore = require('connect-mongodb-session')(session)
+const MongoStore = require('connect-mongodb-session')(session);
+const compression = require('compression');
+const helmet = require("helmet");
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser');
 const userMiddleware = require('./middleware/user');
-const homeRoutes = require('./routes/home');
 const todoRoutes = require('./routes/todo');
 const authRoutes = require('./routes/auth');
 
@@ -18,11 +19,14 @@ const app = express();
 
 app.use(jsonParser);
 app.use(cookieParser());
+app.use(compression());
 
 const store = new MongoStore({
   collection: 'sessions',
   uri: keys.MONGODB_URI
 })
+
+app.use(express.urlencoded({ extended: true }));
 
 app.use(session({
   secret: keys.SESSION_SECRET,
@@ -32,7 +36,6 @@ app.use(session({
   store,
   cookie: {
     path: '/',
-    //domain:  utils.isDevelopmentEnv() ? null : '.' + config.get('domain').replace('http://', '').replace('https://', ''),
     httpOnly: true
   }
 }))
@@ -42,9 +45,9 @@ app.use(cors({
   credentials: true,
 }));
 
+app.use(helmet());
 app.use(userMiddleware);
 
-app.use('/', homeRoutes);
 app.use('/api', todoRoutes);
 app.use('/auth', authRoutes);
 

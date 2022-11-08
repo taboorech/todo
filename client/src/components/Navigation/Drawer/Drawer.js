@@ -30,14 +30,14 @@ export default function Drawer(props) {
   return(
     <>
       <div className={styles.join(' ')}>
-        <h4>
+        <h5>
           Lists:
-        </h4>
+        </h5>
         <ul>        
           {props.children}
         </ul>
         <div className={createFormStyles.join(' ')}>
-          <button onClick={addButtonClickHandler} className="btn-floating btn-large waves-effect waves-light red addListButton"><i className="material-icons">add</i></button>
+          <button onClick={addButtonClickHandler} className="btn-floating btn-large waves-effect waves-light addListButton"><i className="material-icons">add</i></button>
           <div className={"row formBlock"}>
             <div className="input-field col s12">
               <input 

@@ -1,8 +1,12 @@
 $maxWidth: 990px;
+$yellowColor: #E9C46A;
+$blackColor: #264653;
 
 nav {
   div {    
+    background: $yellowColor;
     .brand-logo {
+      color: $blackColor;
       margin-left: 4rem;
       @media only screen and (max-width: $maxWidth) {
        margin-left: 0; 
@@ -21,6 +25,7 @@ nav {
           align-items: center;
           flex-direction: column;
           height: 100%;
+          color: $blackColor;
           &.active {
             .activeViewer {
               height: 2px;
@@ -31,7 +36,7 @@ nav {
             bottom: 0;
             height: 0;
             width: 100%;
-            background: #FFF;
+            background: $blackColor;
           }
         }
       }
@@ -41,6 +46,9 @@ nav {
     }
     ul {
       margin-right: 4rem;  
+      a {
+        color: $blackColor;
+      }
       @media only screen and (max-width: $maxWidth) {
         display: none;
       }    

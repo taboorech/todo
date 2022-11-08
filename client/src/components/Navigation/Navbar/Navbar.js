@@ -1,36 +1,21 @@
 import React, {useEffect, useState} from "react";
 import './Navbar.scss';
-import {NavLink, useLocation, useNavigate} from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import M from 'materialize-css';
 import axios from "axios";
+import Cookies from "js-cookie";
 
 export default function Navbar() {
-
-  const navigate = useNavigate();
 
   const baseURL = 'http://localhost:3001/';
   const [isAuth, setAuth] = useState(false);
   const {pathname} = useLocation();
   useEffect(() => {
+    if(Cookies.get('sid') !== undefined) {
+      setAuth(true);
+    }
     M.AutoInit();
   }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [pathname])
-
-  const fetchData = async () => {
-    await axios.get(baseURL + 'auth', { withCredentials: true })
-    .then((response) => {
-      if(response.status === 204) {
-        setAuth(true);
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      setAuth(false);
-    })
-  }
 
   const logoutClickHandler = async () => {
     await axios.post(baseURL + 'auth/logout', {}, {
@@ -38,7 +23,7 @@ export default function Navbar() {
     })
     .then(() => {
       setAuth(false);
-      navigate('/auth');
+      window.location.replace('/auth');
     })
     .catch((error) => {
       console.log(error);
@@ -49,7 +34,7 @@ export default function Navbar() {
     <div className="navbar-fixed">
       <nav className="nav-extended">
         <div className="nav-wrapper">
-          <NavLink to={"/"} className="brand-logo">Name</NavLink>          
+          <NavLink to={"/"} className="brand-logo">Todo</NavLink>          
           <ul className="right hide-on-med-and-down">
             <li className={pathname !== '/auth' ? "active" : null}><NavLink to="/">Home</NavLink></li>
             {isAuth ?
@@ -62,17 +47,21 @@ export default function Navbar() {
             <NavLink 
               className={"col s6"}
               to="/"
+              end
             >
               <div className="linkTitle">Home</div>
               <div className="activeViewer"></div>
             </NavLink>
-            <NavLink 
-              className={"col s6"}
-              to="/auth"
-            >
-              <div className="linkTitle">Auth</div>
-              <div className="activeViewer"></div>
-            </NavLink>
+            {isAuth ? 
+              <NavLink to={'/auth'} onClick={logoutClickHandler}>
+                <div className="linkTitle">Logout</div>
+                <div className="activeViewer"></div>
+              </NavLink> :
+              <NavLink className={"col s6"} to="/auth" >
+                <div className="linkTitle">Auth</div>
+                <div className="activeViewer"></div>
+              </NavLink>
+            }
           </div>
         </div>
       </nav>      

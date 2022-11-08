@@ -1,0 +1,10 @@
+$yellowColor: #E9C46A;
+$blackColor: #264653;
+
+.Footer {
+  margin-top: 7rem;
+  background: $yellowColor;
+  h5, a{
+    color: $blackColor;
+  }
+}

@@ -48,7 +48,7 @@ export default function Exercise(props) {
                 listnumber={props.listNumber} 
                 node="button" 
                 waves="light" 
-                className="red col m3 s6 offset-s6"
+                className="col red m3 s6 offset-s6"
               >Delete</Button>
             </div>
           </div>

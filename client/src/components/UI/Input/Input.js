@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import M from 'materialize-css';
+import './Input.scss';
 
 export default function Input(props) {
 

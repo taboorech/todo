@@ -8,11 +8,8 @@ import Cookies from 'js-cookie';
 
 export default function Auth() {
 
-  // console.log(Cookies.get('user').login);
   const baseURL = 'http://localhost:3001/';
   const navigate = useNavigate();
-  // const [registration, setRegistration] = useState(false);
-  // const [error, setError] = useState(null);
   const [login, setLogin] = useState("");
   const [registerLogin, setRegisterLogin] = useState("");
   const [password, setPassword] = useState("");
@@ -45,7 +42,7 @@ export default function Auth() {
       })
       .then((response) => {
         if(response.status === 200) {
-          navigate('/');
+          window.location.replace('/');
         }
       })
       .catch((error) => {

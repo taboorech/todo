@@ -4,9 +4,10 @@ import Exercises from "../../hoc/Exercises/Exercises";
 import Exercise from "../../components/Exercise/Exercise";
 import MenuToggle from "../../components/Navigation/MenuToggle/MenuToggle";
 import Drawer from "../../components/Navigation/Drawer/Drawer";
-import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { NavLink, useParams, useNavigate } from "react-router-dom";
 import { ListTitle } from "../../components/ListTitle/ListTitle";
 import axios from 'axios';
+import Cookies from "js-cookie";
 
 export default function ToDo() {
 
@@ -101,10 +102,12 @@ export default function ToDo() {
 
   const clickOnLinkHandler = (event) => {
     const linkHref = event.target.href.split('/');
-    setSelectListId(linkHref[linkHref.length - 1]);
+    if(linkHref[linkHref.length - 1] !== selectListId) {
+      setSelectListId(linkHref[linkHref.length - 1]);
+      getExercisesRequest(linkHref[linkHref.length - 1]);
+      document.title = lists.find(({id}) => id.toString() === linkHref[linkHref.length - 1].toString()).listName;
+    }
     setMenuOpen(false);
-    getExercisesRequest(linkHref[linkHref.length - 1]);
-    document.title = lists.find(({id}) => id.toString() === linkHref[linkHref.length - 1].toString()).listName;
   }
 
   const onChangeDateInputHandler = (value) => {
@@ -229,12 +232,13 @@ export default function ToDo() {
           withCredentials: true
         })
         .then((response) => {
-          if(response.status === 200) {
+          if(response.status === 204) {
             listsArr.splice(i, 1);
             setListTitle("");
             setSelectListId(selectListId.toString() !== lists[0].id.toString() ? lists[0].id : lists[1].id);
             setEditListTitle(false);
             setLists(listsArr);
+            getExercisesRequest();
           }
         })
         .catch((error) => {
@@ -282,6 +286,9 @@ export default function ToDo() {
   }
 
   useEffect(() => {
+    if(Cookies.get('sid') === undefined) {
+      return navigate('/auth');
+    }
     fetchData();
   }, [])
 
@@ -358,296 +365,3 @@ export default function ToDo() {
   )
 
 }
-
-// class ToDo extends Component {
-//   constructor(props) {
-//     super(props);
-//     this.baseURL = 'http://localhost:3001/';
-//     this.state = {
-//       createNewExerciseInputValue: "",
-//       createNewExerciseDateValue: "",
-//       createNewExerciseDescription: "",
-//       createListInputValue: "",
-//       editListTitle: false,
-//       listTitle: "",
-//       menuOpen: false,
-//       updateValues: null,
-//       selectListId: this.props.paramsId,
-//       lists: [
-//         {
-//           id: 0,
-//           listName: "General list"  
-//         },
-//         {
-//           id: 1,
-//           listName: "FFF list"  
-//         },
-//       ],
-//       exercises: [
-//         {id: "0", title: "123", date: Date.now(), description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.", complete: false, isOpen: false},
-//         {id: "1", title: "123", date: Date.now(), description: "", complete: true, isOpen: false},
-//         {id: "2", title: "123", date: Date.now(), description: "", complete: false, isOpen: false},
-//       ]
-//     }
-//   }
-
-//   changeInputHandler = (event) => {
-//     this.setState({
-//       createNewExerciseInputValue: event.target.value
-//     })
-//   }
-
-//   onCreateButtonClickHandler = async () => {
-//     if(this.state.createNewExerciseInputValue.trim() !== "") {
-//       const exercises = [...this.state.exercises];
-//       if(this.state.updateValues === null) {
-//         // axios
-//         let exercise;
-//         await axios.post(this.baseURL + 'api/create-exercise', {
-//           title: this.state.createNewExerciseInputValue,
-//           date: this.state.createNewExerciseDateValue,
-//           description: this.state.createNewExerciseDescription
-//         })
-//         .then((response) => {
-//           exercise = {
-//             id: response.data.exercise._id,
-//             title: this.state.createNewExerciseInputValue,
-//             date: this.state.createNewExerciseDateValue,
-//             description: this.state.createNewExerciseDescription,
-//             complete: false,
-//             isOpen: false
-//           }
-//           console.log(response);
-//         })
-//         .catch((error) => {
-//           console.log(error);
-//         })
-//         exercises.push(exercise);
-//         console.log(exercise);
-//       } else {
-//         exercises[this.state.updateValues] = {
-//           title: this.state.createNewExerciseInputValue,
-//           date: this.state.createNewExerciseDateValue,
-//           description: this.state.createNewExerciseDescription,
-//           complete: exercises[this.state.updateValues].complete,
-//           isOpen: false
-//         }
-//       }
-//       this.setState({
-//         createNewExerciseInputValue: "",
-//         createNewExerciseDateValue: "",
-//         createNewExerciseDescription: "",
-//         updateValues: null,
-//         exercises
-//       })
-//     }
-//   } 
-
-//   onClose = () => {
-//     this.setState({
-//       menuOpen: !this.state.menuOpen
-//     })
-//   }
-
-//   clickOnLinkHandler = (event) => {
-//     const linkHref = event.target.href.split('/');
-//     this.setState({
-//       selectListId: linkHref[linkHref.length - 1],
-//       menuOpen: false
-//     })
-//     document.title = this.state.lists.find(({id}) => id.toString() === linkHref[linkHref.length - 1].toString()).listName;
-//   }
-
-//   onChangeDateInputHandler = (value) => {
-//     this.setState({
-//       createNewExerciseDateValue: value
-//     })
-//   }
-
-//   onCheckboxesChecked = (event) => {
-//     const exercises = [...this.state.exercises];
-//     exercises[event.target.value].complete = !exercises[event.target.value].complete;
-//     this.setState({
-//       exercises
-//     })
-//     // axios post request
-//   }
-
-//   onExerciseClickHandler = (event) => {
-//     const listnumber = +event.target.getAttribute("listnumber");
-//     const exercises = [...this.state.exercises];
-//     exercises[listnumber].isOpen = !exercises[listnumber].isOpen;
-//     this.setState({
-//       exercises
-//     })
-//   }
-
-//   deleteButtonClickHandler = (event) => {
-//     const listnumber = +event.target.getAttribute("listnumber");    
-//     const exercises = [...this.state.exercises];
-//     exercises.splice(listnumber, 1);
-//     this.setState({
-//       exercises
-//     })
-//     // axios post request
-//   }
-
-//   descriptionInputChangeHandler = (event) => {
-//     this.setState({
-//       createNewExerciseDescription: event.target.value
-//     });
-//   }
-
-//   createListButtonClickHandler = () => {
-//     let lists = this.state.lists;
-//     lists.push({
-//       id: uuid(),
-//       listName: this.state.createListInputValue
-//     })
-//     this.setState({
-//       createListInputValue: "",
-//       lists
-//     })
-//     // axios post request
-//   }
-
-//   createListInputChangeHandler = (event) => {
-//     this.setState({
-//       createListInputValue: event.target.value
-//     })
-//   }
-
-//   onExerciseDoubleClickHandler = (event) => {
-//     const listnumber = +event.target.getAttribute("listnumber");
-//     this.setState({
-//       createNewExerciseInputValue: this.state.exercises[listnumber].title,
-//       createNewExerciseDateValue: this.state.exercises[listnumber].date,
-//       createNewExerciseDescription: this.state.exercises[listnumber].description,
-//       updateValues: listnumber
-//     })
-//   }
-
-//   listTitleDoubleClickHandler = () => {
-//     this.setState({
-//       listTitle: this.state.lists.find(({id}) => id.toString() === this.state.selectListId.toString()).listName,
-//       editListTitle: true
-//     })
-//   }
-
-//   listTitleInputChangeHandler = (event) => {
-//     this.setState({
-//       listTitle: event.target.value
-//     })
-//   }
-
-//   listTitleApplyButtonClick = () => {
-//     let lists = [...this.state.lists];
-//     for(let i = 0; i < lists.length; i++) {
-//       if(this.state.selectListId.toString() === lists[i].id.toString() && this.state.listTitle.trim() !== lists[i].listName.trim()) {
-//         lists[i].listName = this.state.listTitle;
-//         this.setState({
-//           listTitle: "",
-//           editListTitle: false,
-//           lists
-//         })
-//       } else {
-//         this.setState({
-//           editListTitle: false,
-//         })
-//       }
-//     }
-//   }
-
-//   listTitleDeleteButtonClick = () => {
-//     let lists = [...this.state.lists];
-//     for(let i = 0; i < lists.length; i++) {
-//       if(this.state.selectListId.toString() === lists[i].id.toString()) {
-//         lists.splice(i, 1);
-//         this.setState({
-//           listTitle: "",
-//           selectListId: this.state.selectListId.toString() !== this.state.lists[0].id.toString() ? this.state.lists[0].id : this.state.lists[1].id,
-//           editListTitle: false,
-//           lists
-//         })
-//       }
-//     }
-//   }
-
-//   componentDidMount() {
-//     document.title = this.state.lists.find(({id}) => id.toString() === this.state.selectListId.toString()).listName;
-//   }
-
-//   render() {    
-//     return (
-//       <>
-//         <MenuToggle isOpen={this.state.menuOpen} onClick={this.onClose} />
-//         <Drawer 
-//           createListInputChange = {(event) => this.createListInputChangeHandler(event)} 
-//           createListInputValue = {this.state.createListInputValue} 
-//           createListButtonClick={this.createListButtonClickHandler} 
-//           isOpen={this.state.menuOpen} 
-//           onClose={this.onClose}
-//         >
-//           {this.state.lists.map((list, index) => (
-//             <li key={`links-${index}`}>
-//               <NavLink
-//                 to={'/' + list.id}                
-//                 className={({isActive}) => isActive ? "active" : null} 
-//                 onClick={(event) => this.clickOnLinkHandler(event)}
-//               >
-//                 {list.listName}
-//               </NavLink>
-//             </li>
-//           ))}
-//         </Drawer>
-//         <main>
-//           <Input
-//             value={this.state.createNewExerciseInputValue} 
-//             htmlFor="nameForExercise" 
-//             type="text"            
-//             onButtonClick={this.onCreateButtonClickHandler} 
-//             onChange={(event) => this.changeInputHandler(event)} 
-//             btnName={'Save'} 
-//             labelTitle = {'Name of exercise'}
-//             onChangeDateInput = {value => this.onChangeDateInputHandler(value)}
-//             dateValue = {this.state.createNewExerciseDateValue}
-//             htmlForDate = {"exerciseDate"}
-//             dateLabelTitle = {"Date to do"}
-//             descriptionLabel = {'Description'}
-//             onDescriptionInputChange = {(event) => this.descriptionInputChangeHandler(event)}
-//             descriptionValue = {this.state.createNewExerciseDescription}
-//           />          
-//           <ListTitle 
-//             value={this.state.listTitle !== "" ? this.state.listTitle : this.state.lists.find(({id}) => (id.toString() === this.state.selectListId.toString())).listName}
-//             onDblClick = {this.listTitleDoubleClickHandler}
-//             onApplyButtonClick = {this.listTitleApplyButtonClick}
-//             onDeleteButtonClick = {this.listTitleDeleteButtonClick}
-//             canDelete = {this.state.lists.length > 1}
-//             inputChange = {(event) => this.listTitleInputChangeHandler(event)}
-//             editListTitle = {this.state.editListTitle}
-//             anotherList = {this.state.selectListId.toString() !== this.state.lists[0].id.toString() ? this.state.lists[0].id.toString() : (this.state.lists.length > 1 ? this.state.lists[1].id.toString() : null)}
-//           />
-//           <Exercises>          
-//             {this.state.exercises.map((exercise, index) => (
-//               <Exercise 
-//                 key={index} 
-//                 deleteButtonClick = {(event) => this.deleteButtonClickHandler(event)} 
-//                 descriptionBlockOpen = {exercise.isOpen} 
-//                 description={exercise.description} 
-//                 listNumber={index} 
-//                 onClick={this.onExerciseClickHandler} 
-//                 onDblClick = {(event) => this.onExerciseDoubleClickHandler(event)}
-//                 title={exercise.title} 
-//                 onCheckboxesChecked={(event) => this.onCheckboxesChecked(event)} 
-//                 date={exercise.date} 
-//                 complete={exercise.complete}
-//               />
-//             ))}
-//           </Exercises>
-//         </main>
-//       </>
-//     )
-//   }
-// }
-
-// export default ToDo;
