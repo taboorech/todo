@@ -56,6 +56,7 @@ $whiteColor: #EBB9B3;
       height: auto;
       .description {
         text-align: justify;
+        cursor: text;
       }
       &.enter-active {
         opacity: 1;

@@ -211,6 +211,7 @@ export default function ToDo() {
         .catch((error) => {
           console.log(error);
         })
+        document.title = listTitle;
         listsArr[i].listName = listTitle;
         setListTitle("")
         setEditListTitle(false);
@@ -238,7 +239,8 @@ export default function ToDo() {
             setSelectListId(selectListId.toString() !== lists[0].id.toString() ? lists[0].id : lists[1].id);
             setEditListTitle(false);
             setLists(listsArr);
-            getExercisesRequest();
+            document.title = selectListId.toString() !== lists[0].id.toString() ? lists[0].listName : lists[1].listName;
+            getExercisesRequest(selectListId.toString() !== lists[0].id.toString() ? lists[0].id : lists[1].id);
           }
         })
         .catch((error) => {
@@ -255,15 +257,9 @@ export default function ToDo() {
     .then((response) => {
       setLists([...response.data.lists]);
       let selectList = '';
-      if(id) {
-        selectList = response.data.lists.find((list) => list.id === id);
-        setSelectListId(selectList.id);
-        document.title = selectList.listName;
-      } else {
-        selectList = response.data.lists[0];
-        setSelectListId(selectList.id);
-        document.title = selectList.listName;
-      }
+      selectList = response.data.lists.find((list) => list.id === id) || response.data.lists[0];
+      setSelectListId(selectList.id);
+      document.title = selectList.listName;
       getExercisesRequest(selectList.id);
     })
     .catch((error) => {
