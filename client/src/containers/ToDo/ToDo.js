@@ -265,7 +265,7 @@ export default function ToDo() {
     .catch((error) => {
       console.log(error);
     })
-  }
+  };
 
   const getExercisesRequest = async (selectListId) => {
     await axios.post(baseURL + 'api/exercises', {
@@ -282,11 +282,14 @@ export default function ToDo() {
   }
 
   useEffect(() => {
-    if(Cookies.get('sid') === undefined) {
+    if(!Cookies.get('sid')) {
       return navigate('/auth');
     }
+  }, [navigate]);
+
+  useEffect(() => {
     fetchData();
-  }, [])
+  }, []);
 
   return (
     <>
