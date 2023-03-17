@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Input from "../../components/UI/Input/Input";
 import Exercises from "../../hoc/Exercises/Exercises";
 import Exercise from "../../components/Exercise/Exercise";
@@ -250,7 +250,7 @@ export default function ToDo() {
     }
   }
 
-  const fetchData = async () => {
+  const fetchData = useCallback( async () => {
     await axios.get(baseURL + 'api/lists', {
       withCredentials: true
     })
@@ -265,7 +265,7 @@ export default function ToDo() {
     .catch((error) => {
       console.log(error);
     })
-  };
+  }, [id]);
 
   const getExercisesRequest = async (selectListId) => {
     await axios.post(baseURL + 'api/exercises', {
@@ -289,7 +289,7 @@ export default function ToDo() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <>
